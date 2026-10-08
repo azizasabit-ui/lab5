@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
-import '../widgets/product_action_bar.dart';
+
+import '../models/product.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  const ProductDetailScreen({super.key});
+  final Product product;
+
+  const ProductDetailScreen({
+    super.key,
+    required this.product,
+  });
 
   @override
   State<ProductDetailScreen> createState() =>
@@ -11,94 +17,95 @@ class ProductDetailScreen extends StatefulWidget {
 
 class _ProductDetailScreenState
     extends State<ProductDetailScreen> {
-  bool isBookmarked = false;
-  int cartCount = 0;
-
-  void toggleBookmark() {
-    setState(() {
-      isBookmarked = !isBookmarked;
-    });
-  }
-
-  void addToCart() {
-    setState(() {
-      cartCount++;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Product added to cart'),
-      ),
-    );
-  }
+  bool isFavorite = false;
+  bool addedToCart = false;
 
   @override
   Widget build(BuildContext context) {
+    final Product product = widget.product;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Product Details'),
+        title: Text(
+          product.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         centerTitle: true,
       ),
 
-      // Sticky bottom action bar
-      bottomNavigationBar: ProductActionBar(
-        onAddToCart: addToCart,
-      ),
-
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return SingleChildScrollView(
-            child: Center(
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(
-                  maxWidth: 900,
+                  maxWidth: 800,
                 ),
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal:
-                        constraints.maxWidth < 600 ? 16 : 32,
-                    vertical: 16,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(
+                    16,
+                    16,
+                    16,
+                    110,
                   ),
                   child: Column(
                     crossAxisAlignment:
                         CrossAxisAlignment.start,
                     children: [
-                      // Product image with bookmark overlay
+                      // IMAGE + FAVORITE BUTTON
                       Stack(
                         children: [
-                          Container(
-                            width: double.infinity,
-                            height: constraints.maxWidth < 600
-                                ? 280
-                                : 420,
-                            decoration: BoxDecoration(
+                          AspectRatio(
+                            aspectRatio: 1,
+                            child: ClipRRect(
                               borderRadius:
-                                  BorderRadius.circular(20),
-                              image: const DecorationImage(
-                                image: NetworkImage(
-                                  'https://images.unsplash.com/photo-1542291026-7eec264c27ff',
-                                ),
+                                  BorderRadius.circular(24),
+                              child: Image.network(
+                                product.imageUrl,
                                 fit: BoxFit.cover,
+                                errorBuilder: (
+                                  context,
+                                  error,
+                                  stackTrace,
+                                ) {
+                                  return Container(
+                                    color:
+                                        const Color(0xFFFCE4EC),
+                                    child: const Center(
+                                      child: Icon(
+                                        Icons.spa,
+                                        size: 100,
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ),
 
                           Positioned(
-                            top: 16,
-                            right: 16,
+                            top: 14,
+                            right: 14,
                             child: Material(
                               color: Colors.white,
                               shape: const CircleBorder(),
+                              elevation: 3,
                               child: IconButton(
-                                onPressed: toggleBookmark,
+                                onPressed: () {
+                                  setState(() {
+                                    isFavorite =
+                                        !isFavorite;
+                                  });
+                                },
                                 icon: Icon(
-                                  isBookmarked
-                                      ? Icons.bookmark
-                                      : Icons.bookmark_border,
-                                  color: isBookmarked
-                                      ? Colors.blue
-                                      : Colors.black87,
+                                  isFavorite
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
                                 ),
+                                color: isFavorite
+                                    ? Colors.pink
+                                    : Colors.black87,
                               ),
                             ),
                           ),
@@ -107,15 +114,18 @@ class _ProductDetailScreenState
 
                       const SizedBox(height: 24),
 
-                      // Product title + rating
+                      // TITLE + RATING
                       Row(
                         crossAxisAlignment:
                             CrossAxisAlignment.start,
                         children: [
-                          const Expanded(
+                          Expanded(
                             child: Text(
-                              'Premium Running Sneakers',
-                              style: TextStyle(
+                              product.name,
+                              maxLines: 3,
+                              overflow:
+                                  TextOverflow.ellipsis,
+                              style: const TextStyle(
                                 fontSize: 26,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -125,28 +135,33 @@ class _ProductDetailScreenState
                           const SizedBox(width: 12),
 
                           Container(
-                            padding: const EdgeInsets.symmetric(
+                            padding:
+                                const EdgeInsets.symmetric(
                               horizontal: 10,
-                              vertical: 6,
+                              vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.amber.shade100,
+                              color:
+                                  const Color(0xFFFFF3CD),
                               borderRadius:
-                                  BorderRadius.circular(20),
+                                  BorderRadius.circular(12),
                             ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
+                            child: Row(
+                              mainAxisSize:
+                                  MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.star,
-                                  size: 18,
                                   color: Colors.amber,
+                                  size: 20,
                                 ),
-                                SizedBox(width: 4),
+                                const SizedBox(width: 4),
                                 Text(
-                                  '4.8',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
+                                  product.rating
+                                      .toString(),
+                                  style: const TextStyle(
+                                    fontWeight:
+                                        FontWeight.bold,
                                   ),
                                 ),
                               ],
@@ -155,62 +170,35 @@ class _ProductDetailScreenState
                         ],
                       ),
 
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
 
-                      // Price
-                      Row(
-                        children: [
-                          Text(
-                            '\$129.99',
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue.shade700,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            '\$159.99',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey.shade600,
-                              decoration:
-                                  TextDecoration.lineThrough,
-                            ),
-                          ),
-                        ],
+                      // PRICE
+                      Text(
+                        '${product.price.toStringAsFixed(0)} ₸',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
 
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 18),
 
-                      // Category badges
+                      // CATEGORY BADGES
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: const [
-                          Chip(
-                            avatar: Icon(
-                              Icons.directions_run,
-                              size: 18,
+                        children: product.tags.map((tag) {
+                          return Chip(
+                            label: Text(tag),
+                            padding:
+                                const EdgeInsets.symmetric(
+                              horizontal: 6,
                             ),
-                            label: Text('Running'),
-                          ),
-                          Chip(
-                            label: Text('Sports'),
-                          ),
-                          Chip(
-                            label: Text('Men'),
-                          ),
-                          Chip(
-                            label: Text('Premium'),
-                          ),
-                          Chip(
-                            label: Text('New'),
-                          ),
-                        ],
+                          );
+                        }).toList(),
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 26),
 
                       const Text(
                         'About this product',
@@ -222,48 +210,137 @@ class _ProductDetailScreenState
 
                       const SizedBox(height: 10),
 
-                      const Text(
-                        'Premium running sneakers designed '
-                        'for comfort and everyday performance. '
-                        'The lightweight construction provides '
-                        'excellent support during workouts, '
-                        'running and daily activities.',
-                        style: TextStyle(
+                      Text(
+                        product.description,
+                        style: const TextStyle(
                           fontSize: 16,
-                          height: 1.5,
+                          height: 1.6,
+                          color: Colors.black87,
                         ),
                       ),
 
                       const SizedBox(height: 24),
 
-                      // Cart counter
-                      if (cartCount > 0)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue.shade50,
-                            borderRadius:
-                                BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Items in cart: $cartCount',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                      // PRODUCT INFO
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFDF5F7),
+                          borderRadius:
+                              BorderRadius.circular(18),
                         ),
+                        child: Column(
+                          children: [
+                            _InfoRow(
+                              title: 'Category',
+                              value: product.category,
+                            ),
+                            const Divider(),
+                            _InfoRow(
+                              title: 'Rating',
+                              value:
+                                  '${product.rating} / 5.0',
+                            ),
+                            const Divider(),
+                            const _InfoRow(
+                              title: 'Delivery',
+                              value: '1–3 days',
+                            ),
+                          ],
+                        ),
+                      ),
 
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
+
+      // STICKY BOTTOM ACTION BAR
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        addedToCart = !addedToCart;
+                      });
+
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            addedToCart
+                                ? '${product.name} added to cart'
+                                : '${product.name} removed from cart',
+                          ),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      addedToCart
+                          ? 'Added to Cart ✓'
+                          : 'Add to Cart',
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  final String title;
+  final String value;
+
+  const _InfoRow({
+    required this.title,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: Colors.grey,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          textAlign: TextAlign.right,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }

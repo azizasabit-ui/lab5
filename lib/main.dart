@@ -1,25 +1,30 @@
 import 'package:flutter/material.dart';
-import 'screens/product_detail_screen.dart';
+
+import 'screens/home_screen.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const LumiApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LumiApp extends StatelessWidget {
+  const LumiApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'E-Commerce',
+      title: 'LUMI',
+
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-        ),
         useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFE91E63),
+        ),
+        scaffoldBackgroundColor:
+            const Color(0xFFFFFBFC),
       ),
-      home: const ProductDetailScreen(),
+
+      home: const HomeScreen(),
     );
   }
 }
