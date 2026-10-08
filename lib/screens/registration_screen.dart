@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'home_screen.dart';
+
 class RegistrationScreen extends StatefulWidget {
   const RegistrationScreen({super.key});
 
@@ -43,43 +45,49 @@ class _RegistrationScreenState
 
     super.dispose();
   }
+void _register() {
+  final bool isFormValid =
+      _formKey.currentState?.validate() ?? false;
 
-  void _register() {
-    // Validate all TextFormFields
-    final bool isFormValid =
-        _formKey.currentState?.validate() ?? false;
+  setState(() {
+    _showTermsError = !_acceptTerms;
+  });
 
-    setState(() {
-      _showTermsError = !_acceptTerms;
-    });
-
-    if (!isFormValid || !_acceptTerms) {
-      return;
-    }
-
-    // Print form data in terminal
-    print('===== LUMI REGISTRATION =====');
-    print('Full Name: ${_nameController.text}');
-    print('Email: ${_emailController.text}');
-    print('Password: ${_passwordController.text}');
-    print(
-      'Confirm Password: ${_confirmPasswordController.text}',
-    );
-    print('Role: $_selectedRole');
-    print('Terms accepted: $_acceptTerms');
-    print('==============================');
-
-    // Show success SnackBar
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Registration successful! Welcome to LUMI ✨',
-        ),
-        duration: Duration(seconds: 3),
-      ),
-    );
+  if (!isFormValid || !_acceptTerms) {
+    return;
   }
 
+  print('===== LUMI REGISTRATION =====');
+  print('Full Name: ${_nameController.text}');
+  print('Email: ${_emailController.text}');
+  print('Password: ${_passwordController.text}');
+  print(
+    'Confirm Password: ${_confirmPasswordController.text}',
+  );
+  print('Role: $_selectedRole');
+  print('Terms accepted: $_acceptTerms');
+  print('==============================');
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text(
+        'Registration successful! Welcome to LUMI ✨',
+      ),
+      duration: Duration(seconds: 1),
+    ),
+  );
+
+  Future.delayed(const Duration(seconds: 1), () {
+    if (!mounted) return;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const HomeScreen(),
+      ),
+    );
+  });
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(

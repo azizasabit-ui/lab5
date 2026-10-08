@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'screens/home_screen.dart';
+import 'screens/registration_screen.dart';
 
 void main() {
   runApp(const LumiApp());
@@ -14,7 +14,6 @@ class LumiApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'LUMI',
-
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
@@ -23,8 +22,7 @@ class LumiApp extends StatelessWidget {
         scaffoldBackgroundColor:
             const Color(0xFFFFFBFC),
       ),
-
-      home: const HomeScreen(),
+      home: const RegistrationScreen(),
     );
   }
 }
